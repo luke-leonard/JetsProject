@@ -1,9 +1,12 @@
 package com.skilldistillery.jets;
 
-public class AirField {
+import java.util.List;
 
+public class AirField {
+	private List<Jet> jets;
+	
+	
 	public AirField() {
-		// TODO Auto-generated constructor stub
 	}
 
 }

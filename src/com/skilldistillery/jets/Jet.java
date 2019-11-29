@@ -1,6 +1,8 @@
 package com.skilldistillery.jets;
 
 public abstract class Jet {
+	public static final int argsInJet = 4;
+	
 	private String model;
 	private double speed;
 	private int range;
@@ -39,5 +41,10 @@ public abstract class Jet {
 		this.speed = speed;
 		this.range = range;
 		this.price = price;
+	}
+	@Override
+	public String toString() {
+		return "Jet: {\n\tmodel = " + model + "\n\tspeed = " + speed + "\n\trange = " + range + "\n\tprice = " + price
+				 + "\n}";
 	}
 }
