@@ -11,9 +11,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
+import com.skilldistillery.extrautil.Menu;
+import com.skilldistillery.extrautil.MenuFromList;
+import com.skilldistillery.extrautil.MenuItem;
+
 public class JetsApplication {
 	private Scanner input;
 	private AirField airfield;
+	private Menu startMenu;
+	private Menu mainMenu;
 
 	public static void main(String[] args) {
 		JetsApplication app = new JetsApplication();
@@ -45,16 +51,15 @@ public class JetsApplication {
 		t.add(b);
 		t.add(b);
 		t.add(b);
-		app.writeCSVFile(t, "test1.txt");
-		app.readCSVFile(r, "test1.txt");
+		app.writeCSVFile(t, "Assets/test1.txt");
+		app.readCSVFile(r, "Assets/test1.txt");
 		
 		for(int i = 0; i < r.size(); i++) {
 			System.out.println(app.strArrToJet(r.get(i)));
 		//System.out.print("\n");
 		}
 		
-		
-		
+		app.printStartMenu();
 		app.close();
 	}
 
@@ -62,18 +67,33 @@ public class JetsApplication {
 		super();
 		this.input = new Scanner(System.in);
 		this.airfield = new AirField();
-	}
+		
+		Menu.input = this.input;
+		
+		this.startMenu = new Menu("Start menu");
+		startMenu.addItem(new MenuItem("Load Default", this::printUserMenu));
+		startMenu.addItem(new MenuFromList("See saved games","Assets/test1.txt",Menu::doNothing));
+		startMenu.overrideExit(new MenuItem("Quit", Menu::doNothing));
+		
 
-	public void printMenu() {
-		System.out.println("1) List fleet");
-		System.out.println("2) Fly all Jets");
-		System.out.println("3) View fastest jet");
-		System.out.println("4) View jet with longest range");
-		System.out.println("5) Load all Cargo Jets");
-		System.out.println("6) Dogfight!");
-		System.out.println("7) Add a jet to Fleet");
-		System.out.println("8) Remove a jet from Fleet");
-		System.out.println("9) Quit");
+		
+		this.mainMenu = new Menu("Main menu");
+		mainMenu.addItem(new MenuItem("List fleet", airfield::printFleet));
+		mainMenu.addItem(new MenuItem("Fly all Jets", airfield::printFleet));
+		mainMenu.addItem(new MenuItem("View fastest jet", airfield::printFleet));
+		mainMenu.addItem(new MenuItem("View jet with longest range", airfield::printFleet));
+		mainMenu.addItem(new MenuItem("Load all Cargo Jets", airfield::printFleet));
+		mainMenu.addItem(new MenuItem("Dogfight!", airfield::printFleet));
+		mainMenu.addItem(new MenuItem("Add a jet to Fleet", airfield::printFleet));
+		mainMenu.addItem(new MenuItem("Remove a jet from Fleet", airfield::printFleet));
+
+	}
+	public void printStartMenu() {
+		startMenu.execute();
+	}
+	
+	public void printUserMenu() {
+		mainMenu.execute();
 	}
 
 	public String userInput(String prompt) {
