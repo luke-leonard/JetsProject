@@ -43,7 +43,7 @@ public class CargoPlane extends Jet implements CargoCarrier {
 	public void fly() {
 		loadCargo();
 		System.out.println("Flying Cargo Plane " + getTailNumber());
-		System.out.println("I can fly for " + timeInAir());
+		System.out.println("I can fly for " + timeInAir() + "Hours");
 
 	}
 

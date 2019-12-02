@@ -130,10 +130,11 @@ public class AirField {
 
 	public void scramble() {
 		System.out.println("Scrambling fleet:");
-		List<Jet> scrambledFleet = groundFleet.removeAllJets();
+		List<Jet> scrambledFleet = groundFleet.getJets();
 		for (Jet jet : scrambledFleet) {
-			//jet.fly();
+			jet.fly();
 			airFleet.addJet(jet);
+			airFleet.removeJet(jet.getTailNumber());
 		}
 	}
 

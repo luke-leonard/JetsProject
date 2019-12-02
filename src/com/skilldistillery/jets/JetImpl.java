@@ -17,7 +17,7 @@ public class JetImpl extends Jet {
 	@Override
 	public void fly() {
 		System.out.println("Flying Jet " + getTailNumber());
-		System.out.println("I can fly for " + timeInAir());
+		System.out.println("I can fly for " + timeInAir() + "Hours");
 
 	}
 

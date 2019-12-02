@@ -1,8 +1,5 @@
 package com.skilldistillery.jets;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public abstract class Jet {
 	public static final String speedUnits = "mph";
 	public static final String rangeUnits = "miles";
