@@ -1,0 +1,6 @@
+10000000
+Ground Fleet:
+C17,100.0,322,10000000,Empty,5
+Air Fleet:
+KIA Fleet:
+Pilots:

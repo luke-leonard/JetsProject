@@ -16,22 +16,12 @@ public class MenuFromList extends Menu implements Menuable {
 		return userSelection;
 	}
 	
-	public MenuFromList(String name, String fileName, Runnable function) {
+	public MenuFromList(String name, List<String> stringList, Runnable function) {
 		super(name);
 		this.function = function;
-		this.stringList = new ArrayList<>();
-		try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
-			String line = "";
-			while ((line = br.readLine()) != null) {
-				stringList.add(line);
-				addItem(new MenuItem(line, function));
-			}
-		} catch (FileNotFoundException e) {
-			System.out.println(e);
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.out.println(e);
-			e.printStackTrace();
+		this.stringList = stringList;
+		for(String string : stringList) {
+			this.addItem(new MenuItem(string, this::MenuFromListFunction));
 		}
 		
 	}
