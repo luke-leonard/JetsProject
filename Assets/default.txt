@@ -1,0 +1,5 @@
+"Model":F-22,"Speed":10,"Range":10,"Price":100
+"Model":F-22,"Speed":11,"Range":9,"Price":100
+"Model":C-17,"Speed":12,"Range":8,"Price":100
+"Model":C-17,"Speed":13,"Range":7,"Price":100
+"Model":J-32,"Speed":14,"Range":6,"Price":100

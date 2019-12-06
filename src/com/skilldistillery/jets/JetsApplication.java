@@ -1,28 +1,22 @@
 package com.skilldistillery.jets;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
-
-import com.skilldistillery.extrautil.Menu;
-import com.skilldistillery.extrautil.MenuFromList;
-import com.skilldistillery.extrautil.MenuItem;
+import java.util.Set;
 
 public class JetsApplication {
 	private Scanner input;
 	private AirField airfield;
-	private Menu startMenu;
-	private Menu mainMenu;
-	
-	private static final String saveFile = "Assets/SavedGames.txt";
-	
-	private List<String> savedGames = new ArrayList<>();
+	private JetFactory jetFactory = new JetFactory();
+	private BluePrintArchitect architect = new BluePrintArchitect();
+	private Map<String, JetBluePrint> bluePrints;
 
 	public static void main(String[] args) {
 		JetsApplication app = new JetsApplication();
@@ -35,164 +29,147 @@ public class JetsApplication {
 		super();
 		this.input = new Scanner(System.in);
 		this.airfield = new AirField();
+		bluePrints = new HashMap<>();
+	}
 
-		Menu.input = this.input;
-		String line = "";
-		
-		try (BufferedReader br = new BufferedReader(new FileReader(JetsApplication.saveFile))) {
-			while ((line = br.readLine()) != null) {
-				savedGames.add(line);
+	public void run() {
+		System.out.println("Welcome to Jets");
+		System.out.println("Jets is an application that lets you build a fleet, make money, and fight");
+		System.out.println("Lets Begin:");
+		System.out.println("I will give you some default Jets:");
+		load("Assets/default.txt");
+		System.out.println();
+		runMainMenu();
+	}
+
+	public void printMainMenu() {
+		System.out.println();
+		System.out.println("Current High Score is " + airfield.getHighScore());
+		System.out.println("Current Money Suply is " + airfield.getUserMoney());
+		System.out.println("1) List fleet");
+		System.out.println("2) Fly all jets");
+		System.out.println("3) View fastest jet");
+		System.out.println("4) View jet with longest range");
+		System.out.println("5) Collect Money with cargo jets");
+		System.out.println("6) Dogfight!");
+		System.out.println("7) Order Jets");
+		System.out.println("8) Remove a jet from Fleet");
+		System.out.println("9) Quit");
+	}
+
+	public void orderJets() {
+		boolean running = true;
+		while (running) {
+			System.out.println("1) Build New Blue Print");
+			System.out.println("2) Order");
+			System.out.println("3) Quit");
+			String userInput = input.nextLine();
+			switch (userInput) {
+				case "1":
+					System.out.print("Name:");
+					String name = input.nextLine();
+					JetBluePrint jbp = architect.userBuildJet(input);
+					bluePrints.put(name, jbp);
+					break;
+				case "2":
+					airfield.printUserMoney();
+					if (bluePrints.size() > 0) {
+						System.out.println("Current BluePrints:");
+						Set<String> keys = bluePrints.keySet();
+						for (String key : keys) {
+							System.out.println(
+									"\t" + key + "    $" + bluePrints.get(key).getJetCharacteristics().get("Price"));
+						}
+						System.out.print("Enter Name:");
+						userInput = input.nextLine();
+						System.out.print("How Many:");
+						
+						int amount = Integer.parseInt(input.nextLine());
+						if (bluePrints.containsKey(userInput)) {
+							if(Long.parseLong(bluePrints.get(userInput).getJetCharacteristics().get("Price")) * amount < airfield.getUserMoney()) {
+								airfield.addJets(jetFactory.buildJets(bluePrints.get(userInput), amount));
+								
+							}else {
+								System.out.println("You cant afford that");
+							}
+						} else {
+							System.out.println("Blue print not Found");
+						}
+					} else {
+						System.out.println("No BluePrints made");
+					}
+					break;
+				case "3":
+					running = false;
+					break;
+				default:
+					break;
 			}
-			
+		}
+	}
+
+	public void runMainMenu() {
+		boolean running = true;
+		while (running) {
+			printMainMenu();
+			String userInput = input.nextLine();
+			switch (userInput) {
+				case "1":
+					airfield.printFleet();
+					break;
+				case "2":
+					airfield.scramble();
+					break;
+				case "3":
+					airfield.printFastestJet();
+					break;
+				case "4":
+					airfield.printLongestRangeJet();
+					break;
+				case "5":
+					airfield.collectCargo();
+					break;
+				case "6":
+					airfield.dogFight();
+					break;
+				case "7":
+					orderJets();
+					break;
+				case "8":
+					airfield.removeJet(input);
+					break;
+				case "9":
+					running = false;
+					break;
+				default:
+					break;
+			}
+		}
+
+	}
+
+	public void load(String file) {
+		List<JetBluePrint> bluePrints = new ArrayList<>();
+		try (BufferedReader br = new BufferedReader(new FileReader(file));) {
+			String line = "";
+			while((line = br.readLine())!=null) {
+				bluePrints.add(new JetBluePrint(line));
+			}
 		} catch (FileNotFoundException e) {
-			System.out.println(e);
+			System.err.println(e);
 			e.printStackTrace();
 		} catch (IOException e) {
-			System.out.println(e);
+			System.err.println(e);
 			e.printStackTrace();
-		} catch (Exception e) {
-			System.out.println(line);
-			e.printStackTrace();
+
 		}
-		generateMenus();
-	}
-	
-	public void save() {
-		System.out.println("Save as what");
-		String fileName = "Assets/" +input.nextLine() + ".txt";
-		airfield.save(fileName);
-		savedGames.add(fileName);
-		generateMenus();
-	}
-	public void runMainMenu() {
-		generateMenus();
-		this.mainMenu.execute();
-	}
-	
-	public void createNew() {
-		printInstructions();
-		this.airfield = new AirField();
-		runMainMenu();
-	}
-	public void load() {
-		String selection = MenuFromList.getSelection();
-		airfield = new AirField(selection);
-		runMainMenu();
-	}
-	public void loadDefault() {
-		airfield = new AirField("Assets/defaultGame.txt");
-		runMainMenu();
-	}
-
-	public void printInstructions() {
-		System.out.println("Welcome!");
-	}
-	
-	public void run() {
-		startMenu.execute();
-	}
-
-	public String userInput(String prompt) {
-		System.out.println(prompt);
-		return userInput();
-	}
-
-	public String userInput() {
-		return input.next();
+		for(JetBluePrint bp:bluePrints) {
+			airfield.addJet(jetFactory.buildJet(bp));
+		}
 	}
 
 	public void close() {
 		input.close();
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(JetsApplication.saveFile))) {
-			for(String string:this.savedGames) {
-				bw.write(string + "\n");
-			}
-			
-
-		} catch (FileNotFoundException e) {
-			System.out.println(e);
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.out.println(e);
-			e.printStackTrace();
-		}
 	}
 
-	public AirField getAirfield() {
-		return airfield;
-	}
-
-	public void setAirfield(AirField airfield) {
-		this.airfield = airfield;
-	}
-
-	public Menu getStartMenu() {
-		return startMenu;
-	}
-
-	public void setStartMenu(Menu startMenu) {
-		this.startMenu = startMenu;
-	}
-
-	public Menu getMainMenu() {
-		return mainMenu;
-	}
-
-	public void setMainMenu(Menu mainMenu) {
-		this.mainMenu = mainMenu;
-	}
-	public void addJet() {
-		Jet a = new CargoPlane("C17", 100.0, 322, 10000000L, 5);
-
-		airfield.getGroundFleet().addJet(a);
-	}
-
-	public void generateMenus() {
-		this.startMenu = new Menu("Start menu");
-		startMenu.addItem(new MenuItem("Create New", this::createNew));
-		startMenu.addItem(new MenuItem("Load Default Game", this::loadDefault));		
-		startMenu.addItem(new MenuFromList("load saved game", savedGames, this::load));
-		startMenu.overrideExit(new MenuItem("Quit", Menu::doNothing));
-
-		Fleet groundFleet = airfield.getGroundFleet();
-		Fleet airFleet = airfield.getAirFleet();
-		Fleet kiaFleet = airfield.getKIAFleet();
-
-		this.mainMenu = new Menu("Main menu");
-		
-		mainMenu.addItem(new MenuItem("See Money",airfield::printUserMoney));
-
-		Menu listingSubMenu = new Menu("List Fleets");
-		listingSubMenu.addItem(new MenuItem("List ground fleet", groundFleet::printFleet));
-		listingSubMenu.addItem(new MenuItem("List air fleet", airFleet::printFleet));
-		listingSubMenu.addItem(new MenuItem("List kia fleet", kiaFleet::printFleet));
-		mainMenu.addItem(listingSubMenu);
-
-		mainMenu.addItem(new MenuItem("Fly all Jets", airfield::scramble));
-
-		Menu fastestJetsSubMenu = new Menu("View fastest jets");
-		fastestJetsSubMenu.addItem(new MenuItem("All Time Fastest Jet", airfield::printAllTimeFastestJet));
-		fastestJetsSubMenu.addItem(new MenuItem("Ground Fleet Fastest Jets", groundFleet::printFastestJets));
-		fastestJetsSubMenu.addItem(new MenuItem("Air Fleet Fastest Jets", airFleet::printFastestJets));
-		fastestJetsSubMenu.addItem(new MenuItem("KIA Fleet Fastest Jets", kiaFleet::printFastestJets));
-		mainMenu.addItem(fastestJetsSubMenu);
-		
-		Menu longestRangeJetsSubMenu = new Menu("View jets with longest range");
-		longestRangeJetsSubMenu.addItem(new MenuItem("All Time Longest Range Jet", airfield::printAllTimeLongestRangeJet));
-		longestRangeJetsSubMenu.addItem(new MenuItem("Ground Fleet Longest Range Jets", groundFleet::printLongestRangeJets));
-		longestRangeJetsSubMenu.addItem(new MenuItem("Air Fleet Longest Range Jets", airFleet::printLongestRangeJets));
-		longestRangeJetsSubMenu.addItem(new MenuItem("KIA Fleet Longest Range Jets", kiaFleet::printLongestRangeJets));
-		mainMenu.addItem(longestRangeJetsSubMenu);
-		
-		
-		mainMenu.addItem(new MenuItem("Build Jet",airfield::jetBuilder));
-		mainMenu.addItem(new MenuItem("Fight for payload",airfield::causeAction));
-
-		
-		Menu mainExitMenu = new Menu("Quit Game");
-		mainExitMenu.addItem(new MenuItem("Save and Quit", this::save,mainExitMenu::stopExecuting));
-		mainExitMenu.overrideExit(new MenuItem("Quit", Menu::doNothing));
-		mainMenu.overrideExit(mainExitMenu);
-	}
-	
 }

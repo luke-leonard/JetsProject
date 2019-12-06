@@ -1,4 +1,0 @@
-Assets/defaultGame.txt
-Assets/q.txt
-Assets/a.txt
-Assets/f.txt

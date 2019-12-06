@@ -1,42 +1,39 @@
 package com.skilldistillery.jets;
 
 public class CargoPlane extends Jet implements CargoCarrier {
-	public static final int cargoValue = 1_000_000;
-	int capacity;
-	boolean full;
+	public static final double cargoValue = 0.5;
 
-	public CargoPlane(String model, double speed, int range, long price, int capacity) {
-		super(model, speed, range, price);
-		this.capacity = capacity;
-		this.full = false;
-	}
+	public CargoPlane(String model, double speed, int range, long price, Pilot pilot, int serialNumber) {
+		super(model, speed, range, price, pilot, serialNumber);
 
-	public CargoPlane(String... jetString) {
-		super(jetString[0], Double.parseDouble(jetString[1]), Integer.parseInt(jetString[2]),
-				Long.parseLong(jetString[3]), ((jetString[4].equals("Empty")) ? Pilot.Empty : new Pilot(jetString[4])),
-				Integer.parseInt(jetString[5]));
-
-		this.capacity = Integer.parseInt(jetString[6]);
-		this.full = false;
 	}
 
 	@Override
 	public void loadCargo() {
-		System.out
-				.println(getModel() + "-" + getSerialNumber() + " loaded $" + (capacity * cargoValue) + " in supplies");
-		full = true;
+		System.out.println(getTailNumber() + " loaded $" + (getSpeed() * getRange() * cargoValue) + " in supplies");
+
 	}
 
 	@Override
-	public int redeemCargo() {
-		if (full) {
-			System.out.println(
-					getModel() + "-" + getSerialNumber() + " cashed $" + (capacity * cargoValue) + " in supplies");
-			full = false;
-			return cargoValue * capacity;
-		}
-		System.out.println("No cargo loaded");
-		return 0;
+	public long redeemCargo() {
+
+		System.out.println(getTailNumber() + " cashed $" + (getSpeed() * getRange() * cargoValue) + " in supplies");
+		return (long)(getSpeed() * getRange() * cargoValue);
+
+	}
+
+	@Override
+	public JetBluePrint toBluePrint() {
+		JetBluePrint jbp = new JetBluePrint();
+
+		jbp.addChacteristic("Model", getModel());
+		jbp.addChacteristic("Speed", getSpeed());
+		jbp.addChacteristic("Range", getRange());
+		jbp.addChacteristic("Price", getPrice());
+		jbp.addChacteristic("Pilot", getPilot());
+		jbp.addChacteristic("SerialNumber", getSerialNumber());
+
+		return jbp;
 	}
 
 	@Override
@@ -48,20 +45,10 @@ public class CargoPlane extends Jet implements CargoCarrier {
 	}
 
 	@Override
-	public void kill() {
-		System.out.println("Oh no " + getTailNumber() + " has been hit");
-	}
-
-	@Override
 	public String toString() {
 		return "Cargo[ Tail number: " + getModel() + "-" + getSerialNumber() + " Speed: " + getSpeed() + Jet.speedUnits
 				+ "(Mach " + getSpeedInMach() + ") Range: " + getRange() + Jet.rangeUnits + " Price: $" + getPrice()
 				+ " Pilot: " + getPilot() + "]";
 	}
 
-	@Override
-	public String toCSVString() {
-		return getModel() + "," + getSpeed() + "," + getRange() + "," + getPrice() + "," + getPilot().getName() + ","
-				+ getSerialNumber() + "," + capacity;
-	}
 }
